@@ -13,11 +13,12 @@ configuration for plain 6.8.2 (LFS). I had to manually:
 Example usage:
 ```shell
 tar xvf /sources/linux-6.8.2.tar.xz -C /usr/src
-cp 6.8.2/hplfs_config /usr/src
-cp /usr/src/hplfs_config /usr/src/linux-6.8.2/arch/x86/configs
+cp 6.8.2/hplfs_defconfig /usr/src
+cp /usr/src/hplfs_defconfig /usr/src/linux-6.8.2/arch/x86/configs
 cd /usr/src/linux-6.8.2
-make hplfs_config
+make hplfs_defconfig
 make menuconfig # finetune details
+# use: "make savedefconfig" to generate new config as "defconfig" file
 make -j`nproc` # build arch/x86_64/boot/bzImage
 # TODO: cp kernel (make install will not work)
 sudo make modules_install
