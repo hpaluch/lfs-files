@@ -1,0 +1,6 @@
+ONBOOT=yes
+IFACE=eth0
+SERVICE="dhcpcd"
+# NOTE: -4 means client for IPv4 only
+DHCP_START="-b -q -4 -h $HOSTNAME $IFACE"
+DHCP_STOP="-k"
