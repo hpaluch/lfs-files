@@ -39,4 +39,7 @@ Current build order:
 1. [tree/usr/src/dhcpcd/make-dhcpcd-10.0.6](tree/usr/src/dhcpcd/make-dhcpcd-10.0.6)
    After build you will have to install service from bootscripts and update your `ifconfig.eth0`
    to use DHCP client.
+1. [tree/usr/src/glib/make-glib-2.78.4](tree/usr/src/glib/make-glib-2.78.4) required
+   for Midnight Commander. FIXME: it downloads pcre2 dependency on build (so it is not
+   noted anywhere).
 
