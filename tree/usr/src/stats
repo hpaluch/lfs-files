@@ -1,0 +1,36 @@
+#!/bin/bash
+# /usr/src/stats utility script for statistics
+# Source: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+# Author: Bruce Dubbs
+
+function stats()
+{
+  log=$1
+  tarball=$2
+  b4=$3
+
+  base_sbu=230
+
+  free_now=`df -k /tmp | grep / | sed -e "s/ \{2,\}/ /g" | cut -d" " -f3`
+
+  buildtime=`tail -n1 $log|cut -f1 -d" "`
+  sbu=`echo "scale=3; $buildtime / $base_sbu" | bc`
+
+  psizeK=`du -k $tarball | cut -f1`
+  psizeM=`echo "scale=3; $psizeK / 1024"   | bc`
+
+  bsizeK=`echo "$free_now - $b4"           | bc`
+  bsizeM=`echo "scale=3; $bsizeK / 1024"   | bc`
+
+  echo "SBU=$sbu"                                  | tee -a $log
+  echo "$psizeK $tarball size ($psizeM MB)"        | tee -a $log
+  echo "$bsizeK kilobytes build size ($bsizeM MB)" | tee -a $log
+  (echo -n "md5sum : "; md5sum $tarball)           | tee -a $log
+  (echo -n "sha1sum: "; sha1sum $tarball)          | tee -a $log
+
+  echo "`date` $tarball" >> /usr/src/packages-$(lsb_release -r|cut -f2).log
+}
+
+TIMEFMT='%1R Elapsed Time - '
+SUDO=sudo
+# End of /usr/src/stats
