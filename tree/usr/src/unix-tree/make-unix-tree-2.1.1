@@ -1,0 +1,57 @@
+#!/bin/bash
+
+source /usr/src/stats
+
+#######################
+# Installing openssl
+
+DIR=`pwd`
+PROGRAM=openssl-1.0.1c
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/openssl
+#DEST=$BUILDDIR/install
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    echo Making $TITLE
+    date
+
+    patch -Np1 -i $DIR/$PROGRAM-fix_manpages-1.patch  &&
+    ./config --openssldir=${DEST}/etc/ssl \
+             --prefix=${DEST}/usr         \
+             shared                       \
+             zlib-dynamic                             &&
+    make                                              &&
+    make test                                         &&
+    #sed -i 's# libcrypto.a##;s# libssl.a##' Makefile  &&
+    
+    $SUDO make MANDIR=${DEST}/usr/share/man install          &&
+    
+    $SUDO cp -v -r certs      ${DEST}/etc/ssl                &&
+    $SUDO install -v -d -m755 ${DEST}/usr/share/doc/$PROGRAM &&
+    
+    $SUDO cp -v -r doc/{HOWTO,README,*.{txt,html,gif}} \
+                              ${DEST}/usr/share/doc/$PROGRAM &&
+    
+    :
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0

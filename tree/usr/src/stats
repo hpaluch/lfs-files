@@ -1,7 +1,12 @@
 #!/bin/bash
 # /usr/src/stats utility script for statistics
+# MODIFIED version by Henryk Paluch
 # Source: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
 # Author: Bruce Dubbs
+
+# fail on error(-e), fail on use of undefined variable (-u)
+# fail when any command in pipe fails (-o pipefail) - otherwise only last command matters
+set -euo pipefail
 
 function stats()
 {
@@ -28,7 +33,7 @@ function stats()
   (echo -n "md5sum : "; md5sum $tarball)           | tee -a $log
   (echo -n "sha1sum: "; sha1sum $tarball)          | tee -a $log
 
-  echo "`date` $tarball" >> /usr/src/packages-$(lsb_release -r|cut -f2).log
+  echo "`date` $tarball" >> /usr/src/packages-$(< /etc/lfs-release).log
 }
 
 TIMEFMT='%1R Elapsed Time - '
