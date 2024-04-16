@@ -21,7 +21,8 @@ Please see [tree/usr/src/packages-r12.1-42.log](tree/usr/src/packages-r12.1-42.l
 my order of package builds.
 
 Current build order:
-* [tree/usr/src/unix-tree/make-unix-tree-2.1.1](tree/usr/src/unix-tree/make-unix-tree-2.1.1)
-  (provides tree(1) command) - intentionally first build to ensure that everything works.
 
+1. [tree/usr/src/unix-tree/make-unix-tree-2.1.1](tree/usr/src/unix-tree/make-unix-tree-2.1.1)
+   (provides tree(1) command) - intentionally first build to ensure that everything works.
+1. [tree/usr/src/openssh/make-openssh-9.6p1](tree/usr/src/openssh/make-openssh-9.6p1)
 

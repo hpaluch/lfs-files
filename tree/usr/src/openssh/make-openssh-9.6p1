@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# build and install: OpenSSH-9.6p1
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/postlfs/openssh.html
+# Download: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.6p1.tar.gz
+# MD5: 5e90def5af3ffb27e149ca6fff12bef3
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing openssh
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=openssh-9.6p1
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/openssh
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    [ -d /var/lib/sshd ] || $SUDO install -v -g sys -m700 -d /var/lib/sshd
+    grep -q '^sshd:x:50:' /etc/group || $SUDO groupadd -g 50 sshd
+    grep -q '^sshd:x:50:' /etc/passwd || $SUDO useradd  -c 'sshd PrivSep' \
+         -d /var/lib/sshd  \
+         -g sshd           \
+         -s /bin/false     \
+         -u 50 sshd
+
+    ./configure --prefix=/usr                        \
+            --sysconfdir=/etc/ssh                    \
+            --with-privsep-path=/var/lib/sshd        \
+            --with-default-path=/usr/bin             \
+            --with-superuser-path=/usr/sbin:/usr/bin \
+            --with-pid-dir=/run
+    make
+    $SUDO make install
+    $SUDO install -v -m755 contrib/ssh-copy-id /usr/bin
+    $SUDO install -v -m644    contrib/ssh-copy-id.1 \
+                    /usr/share/man/man1
+    $SUDO install -v -m755 -d /usr/share/doc/openssh-9.6p1
+    $SUDO install -v -m644    INSTALL LICENCE OVERVIEW README* \
+                    /usr/share/doc/openssh-9.6p1
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+cat <<EOF
+WARNING! This script just installed SSHd binary and manual pages.
+You have to follow https://www.linuxfromscratch.org/blfs/view/stable/postlfs/openssh.html to
+also install sshd service and configure sshd server in /etc/ssh/* to make it work.
+EOF
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
