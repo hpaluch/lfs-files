@@ -4,6 +4,8 @@
 # BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/postlfs/openssh.html
 # Download: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-9.6p1.tar.gz
 # MD5: 5e90def5af3ffb27e149ca6fff12bef3
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
 
 set -e
 source /usr/src/stats
