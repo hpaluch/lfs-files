@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# build and install: dhcpcd-10.0.6 (DHCP client)
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/basicnet/dhcpcd.html
+# Download: https://github.com/NetworkConfiguration/dhcpcd/releases/download/v10.0.6/dhcpcd-10.0.6.tar.xz
+# MD5: ef8356d711b17701928ead7206d15234
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing dhcpcd
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=dhcpcd-10.0.6
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/dhcpcd
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    ./configure --prefix=/usr            \
+            --sysconfdir=/etc            \
+            --libexecdir=/usr/lib/dhcpcd \
+            --dbdir=/var/lib/dhcpcd      \
+            --runstatedir=/run           \
+            --disable-privsep
+    make
+    $SUDO make install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+cat <<EOF
+WARNING! This script just installed dhcpcd binary and manual pages.
+You have to follow https://www.linuxfromscratch.org/blfs/view/stable/basicnet/dhcpcd.html to
+also install service and change your /etc/sysconfig/ifconfig.eth0 to use DHCP client
+EOF
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
