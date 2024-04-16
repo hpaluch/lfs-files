@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# build and install: Midnight Commander, requires Glib
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/general/mc.html
+# Download: http://ftp.midnight-commander.org/mc-4.8.31.tar.xz
+# MD5: 2c3dd9af66e4cfef5a7a460df1cdf868
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing mc
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=mc-4.8.31
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/mc
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    ./configure --prefix=/usr \
+            --sysconfdir=/etc \
+	    --with-screen=ncurses \
+            --enable-charset
+    make
+    $SUDO make install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0

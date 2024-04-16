@@ -42,4 +42,6 @@ Current build order:
 1. [tree/usr/src/glib/make-glib-2.78.4](tree/usr/src/glib/make-glib-2.78.4) required
    for Midnight Commander. FIXME: it downloads pcre2 dependency on build (so it is not
    noted anywhere).
+1. [tree/usr/src/mc/make-mc-4.8.31](tree/usr/src/mc/make-mc-4.8.31) Midnight
+   Commander. Build with ncurses to avoid installing slang library.
 
