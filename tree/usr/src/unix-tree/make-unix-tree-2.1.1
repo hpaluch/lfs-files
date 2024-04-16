@@ -1,18 +1,24 @@
 #!/bin/bash
 
+# build tree(1) command
+# BLFS book: https://www.linuxfromscratch.org/blfs/downloads/stable/BLFS-BOOK-12.1-nochunks.html#tree
+# Download: https://gitlab.com/OldManProgrammer/unix-tree/-/archive/2.1.1/unix-tree-2.1.1.tar.bz2
+# MD5: 85f9a6d1e48f1d5262a9b2d58d47431f
+
+set -e
 source /usr/src/stats
 
 #######################
-# Installing openssl
+# Installing unix-tree
 
+cd `dirname $0`
 DIR=`pwd`
-PROGRAM=openssl-1.0.1c
+PROGRAM=unix-tree-2.1.1
 LOG=$DIR/$PROGRAM.log
 TITLE=$PROGRAM
 TIMEFORMAT="$TIMEFMT $TITLE"
 
-BUILDDIR=/tmp/openssl
-#DEST=$BUILDDIR/install
+BUILDDIR=/tmp/unix-tree
 
 rm -f  $LOG
 rm -rf $BUILDDIR
@@ -26,27 +32,12 @@ tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
 cd $PROGRAM
 { time \
   {
+    set -e # fail on error
     echo Making $TITLE
     date
 
-    patch -Np1 -i $DIR/$PROGRAM-fix_manpages-1.patch  &&
-    ./config --openssldir=${DEST}/etc/ssl \
-             --prefix=${DEST}/usr         \
-             shared                       \
-             zlib-dynamic                             &&
-    make                                              &&
-    make test                                         &&
-    #sed -i 's# libcrypto.a##;s# libssl.a##' Makefile  &&
-    
-    $SUDO make MANDIR=${DEST}/usr/share/man install          &&
-    
-    $SUDO cp -v -r certs      ${DEST}/etc/ssl                &&
-    $SUDO install -v -d -m755 ${DEST}/usr/share/doc/$PROGRAM &&
-    
-    $SUDO cp -v -r doc/{HOWTO,README,*.{txt,html,gif}} \
-                              ${DEST}/usr/share/doc/$PROGRAM &&
-    
-    :
+    make
+    $SUDO make PREFIX=/usr MANDIR=/usr/share/man install
   }
 } 2>&1 | tee -a $LOG
 
