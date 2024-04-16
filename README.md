@@ -12,6 +12,12 @@ It is expected that you followed my wiki and:
 - installed base system with ALFS (Automated Linux from scratch)
 - also enabled BLFS builds including GPM package (it will be later used for `mc`)
 
+TODO:
+- `top` command has insane colors and other default settings
+- probably using ` --disable-modern-top` (from https://gitlab.archlinux.org/archlinux/packaging/packages/procps-ng/-/blob/main/PKGBUILD?ref_type=heads)
+  should help.
+
+
 # Building packages Beyond LFS (BLFS)
 
 It is expected that you will *carefully* copy content of `tree/` to your `/`.
