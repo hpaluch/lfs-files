@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# build and install: Midnight Commander, requires Glib
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/general/bubblewrap.html
+# Download: https://github.com/containers/bubblewrap/releases/download/v0.8.0/bubblewrap-0.8.0.tar.xz
+# MD5: fc0e14bc26df76225e8f8cc2df9fb657
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing bubblewrap
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=bubblewrap-0.8.0
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/bubblewrap
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    mkdir build
+    cd    build
+    meson setup --prefix=/usr --buildtype=release ..
+    ninja
+    $SUDO ninja install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
