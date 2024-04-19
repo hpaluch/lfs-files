@@ -24,7 +24,8 @@ It is expected that you will *carefully* copy content of `tree/` to your `/`.
 When I make any change I can copy it back to git using `./copy_back_tree.sh` script.
 
 Please see [tree/usr/src/packages-r12.1-42.log](tree/usr/src/packages-r12.1-42.log) for
-my order of package builds.
+my order of package builds. Notice already one mistake: I build GLib2 without installed
+PCRE2 - it downloaded its own copy of PCRE2 itself...
 
 As first you should download and unpack bootscripts (there is no build script, because
 there is nothing to build), for example using:
@@ -47,11 +48,10 @@ Current build order:
 1. [tree/usr/src/dhcpcd/make-dhcpcd-10.0.6](tree/usr/src/dhcpcd/make-dhcpcd-10.0.6)
    After build you will have to install service from bootscripts and update your `ifconfig.eth0`
    to use DHCP client.
-1. [tree/usr/src/glib/make-glib-2.78.4](tree/usr/src/glib/make-glib-2.78.4) required
-   for Midnight Commander. FIXME: it downloads pcre2 dependency on build (so it is not
-   noted anywhere).
-1. [tree/usr/src/mc/make-mc-4.8.31](tree/usr/src/mc/make-mc-4.8.31) Midnight
-   Commander. Build with ncurses to avoid installing slang library.
+1. [tree/usr/src/pcre2/make-pcre2-10.42](tree/usr/src/pcre2/make-pcre2-10.42)
+   PCRE2 library, required for GLib (which is required for MC). WARNING!
+   Without PCRE2 library the GLib will attempt to download PCRE2 itself (!)
+
 1. [tree/usr/src/bubblewrap/make-bubblewrap-0.8.0](tree/usr/src/bubblewrap/make-bubblewrap-0.8.0)
    Bubblewrap - I plan to use it to build in network isolation (to avoid problem when GLib downloaded
    pcre2)
@@ -66,4 +66,12 @@ Current build order:
 
    NOTE: that only `lo` (loopback) is visible...
 
+   NOTE: There are also other ways how to block DNS - for example temporarily comment out all `namserver` entries 
+   in `/etc/resolv.conf` and run build. However direct IP address connection (or DoH - DNS Over Https
+   will still work - without bwrap).
+
+1. [tree/usr/src/glib/make-glib-2.78.4](tree/usr/src/glib/make-glib-2.78.4) required
+   for Midnight Commander.
+1. [tree/usr/src/mc/make-mc-4.8.31](tree/usr/src/mc/make-mc-4.8.31) Midnight
+   Commander. Build with ncurses to avoid installing slang library.
 

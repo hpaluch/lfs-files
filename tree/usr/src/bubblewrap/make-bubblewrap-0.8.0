@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# build and install: Midnight Commander, requires Glib
+# build and install: Bubblewrap - isolation wrapper
 # BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/general/bubblewrap.html
 # Download: https://github.com/containers/bubblewrap/releases/download/v0.8.0/bubblewrap-0.8.0.tar.xz
 # MD5: fc0e14bc26df76225e8f8cc2df9fb657

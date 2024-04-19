@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# build and install: PCRE2 Perl Compatible Regular Expression libraries
+#                    required by GLib(!)
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/general/pcre2.html
+# Download: https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.42/pcre2-10.42.tar.bz2
+# MD5: a8e9ab2935d428a4807461f183034abe
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing pcre2
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=pcre2-10.42
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/pcre2
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    ./configure --prefix=/usr                   \
+            --docdir=/usr/share/doc/pcre2-10.42 \
+            --enable-unicode                    \
+            --enable-jit                        \
+            --enable-pcre2-16                   \
+            --enable-pcre2-32                   \
+            --enable-pcre2grep-libz             \
+            --enable-pcre2grep-libbz2           \
+            --enable-pcre2test-libreadline      \
+            --disable-static
+    make
+    $SUDO make install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
