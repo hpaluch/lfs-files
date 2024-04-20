@@ -12,12 +12,6 @@ It is expected that you followed my wiki and:
 - installed base system with ALFS (Automated Linux from scratch)
 - also enabled BLFS builds including GPM package (it will be later used for `mc`)
 
-TODO:
-- `top` command has insane colors and other default settings
-- probably using ` --disable-modern-top` (from https://gitlab.archlinux.org/archlinux/packaging/packages/procps-ng/-/blob/main/PKGBUILD?ref_type=heads)
-  should help.
-
-
 # Building packages Beyond LFS (BLFS)
 
 It is expected that you will *carefully* copy content of `tree/` to your `/`.
@@ -48,6 +42,9 @@ Current build order:
 1. [tree/usr/src/dhcpcd/make-dhcpcd-10.0.6](tree/usr/src/dhcpcd/make-dhcpcd-10.0.6)
    After build you will have to install service from bootscripts and update your `ifconfig.eth0`
    to use DHCP client.
+1. [tree/usr/src/procps-ng/make-procps-ng-4.0.4](tree/usr/src/procps-ng/make-procps-ng-4.0.4)
+   Rebuild "normal" 'top' command instead of awful 'modern' variant. Tip comes from
+   Arch Linux: https://gitlab.archlinux.org/archlinux/packaging/packages/procps-ng/-/blob/main/PKGBUILD?ref_type=heads
 1. [tree/usr/src/pcre2/make-pcre2-10.42](tree/usr/src/pcre2/make-pcre2-10.42)
    PCRE2 library, required for GLib (which is required for MC). WARNING!
    Without PCRE2 library the GLib will attempt to download PCRE2 itself (!)

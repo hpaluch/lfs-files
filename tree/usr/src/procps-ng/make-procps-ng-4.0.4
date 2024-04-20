@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# build and install: classic Top - Procps-ng-4.0.4
+# LFS book: https://www.linuxfromscratch.org/lfs/view/stable/chapter08/procps-ng.html
+# Patch to build classic Top: https://gitlab.archlinux.org/archlinux/packaging/packages/procps-ng/-/blob/main/PKGBUILD?ref_type=heads
+# because it defaults to "modern" Top which is simply awful...
+# Download: https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-4.0.4.tar.xz
+# MD5: 2f747fc7df8ccf402d03e375c565cf96
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing procps-ng
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=procps-ng-4.0.4
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/procps-ng
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    ./configure --prefix=/usr                       \
+            --docdir=/usr/share/doc/procps-ng-4.0.4 \
+            --disable-static                        \
+	    --disable-modern-top                    \
+            --disable-kill
+    make
+    $SUDO make install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
