@@ -71,4 +71,6 @@ Current build order:
    for Midnight Commander.
 1. [tree/usr/src/mc/make-mc-4.8.31](tree/usr/src/mc/make-mc-4.8.31) Midnight
    Commander. Build with ncurses to avoid installing slang library.
+1. [tree/usr/src/iptables/make-iptables-1.8.10](tree/usr/src/iptables/make-iptables-1.8.10) iptables
+   firewall - TODO configuration script...
 

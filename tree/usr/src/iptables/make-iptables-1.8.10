@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# build and install: iptables-1.8.10
+# BLFS book: https://www.linuxfromscratch.org/blfs/view/stable/postlfs/iptables.html
+# Download: https://www.netfilter.org/projects/iptables/files/iptables-1.8.10.tar.xz
+# MD5: 5eaa3bb424dd3a13c98c0cb026314029
+# this script is based on /usr/src/openssl/make-openssl-1.0.1c by Bruce Dubbs
+# from: https://www.linuxfromscratch.org/~bdubbs/files/updating-lfs.html
+
+set -e
+source /usr/src/stats
+
+#######################
+# Installing iptables
+
+cd `dirname $0`
+DIR=`pwd`
+PROGRAM=iptables-1.8.10
+LOG=$DIR/$PROGRAM.log
+TITLE=$PROGRAM
+TIMEFORMAT="$TIMEFMT $TITLE"
+
+BUILDDIR=/tmp/iptables
+
+rm -f  $LOG
+rm -rf $BUILDDIR
+mkdir  $BUILDDIR
+cd     $BUILDDIR
+
+before=`df -k / | grep / | sed -e "s/ \{2,\}/ /g" | cut -d' ' -f3`
+
+tar -xf $DIR/$PROGRAM.tar.?z* || exit 1
+
+cd $PROGRAM
+{ time \
+  {
+    set -e # fail on error
+    echo Making $TITLE
+    date
+
+    ./configure --prefix=/usr  \
+            --disable-nftables \
+            --enable-libipq
+    make
+    $SUDO make install
+  }
+} 2>&1 | tee -a $LOG
+
+if [ $PIPESTATUS -ne 0 ]; then exit 1; fi;
+
+stats $LOG $DIR/$PROGRAM.tar.?z* $before
+
+exit 0
